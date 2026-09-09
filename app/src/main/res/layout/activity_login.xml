@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E3F2FD"
+    android:background="#EDF7FD"
     tools:context=".LoginActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="20dp"
-            android:backgroundTint="#FFEEFF"
+            android:backgroundTint="#FAFDFF"
             app:cardElevation="20dp"
             android:layout_margin="20dp"
             app:layout_constraintTop_toBottomOf="@id/CareerNexus"
@@ -106,6 +106,7 @@
                     android:text="Login"
                     android:textSize="20sp"
                     android:textStyle="bold"
+                    android:textColorHint="#263A63"
                     android:layout_marginTop="20dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
