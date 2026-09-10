@@ -6,9 +6,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class Dashboard : AppCompatActivity() {
+
+    private lateinit var adapter: OpportunityAdapter
+    private lateinit var rvOpportunities: RecyclerView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -18,9 +24,27 @@ class Dashboard : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        findViewById<FloatingActionButton>(R.id.btn_plus).setOnClickListener {
-            val intent = Intent(this, AddOpportunity::class.java).
-            also {startActivity(it)}
+        rvOpportunities = findViewById(R.id.rvOpportunities)
+        val btnPlus = findViewById<FloatingActionButton>(R.id.btn_plus)
+
+        // 1. Create adapter with an empty list initially
+        adapter = OpportunityAdapter(emptyList()) { opportunity ->
+            // handle card click later (e.g. open detail screen)
         }
+
+        // 2. Attach LayoutManager + Adapter to RecyclerView
+        rvOpportunities.layoutManager = LinearLayoutManager(this)
+        rvOpportunities.adapter = adapter
+
+        btnPlus.setOnClickListener {
+            startActivity(Intent(this, AddOpportunity::class.java))
+        }
+    }
+
+    // 3. Refresh data every time Dashboard becomes visible again
+    override fun onResume() {
+        super.onResume()
+        val list = OpportunityRepository.getAll()
+        adapter.updateList(list)
     }
 }
