@@ -1,5 +1,6 @@
 package com.example.careernexus
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Looper
@@ -30,10 +31,16 @@ class MainActivity : AppCompatActivity() {
         )
         logo.startAnimation(logoAnimation)
         android.os.Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+            val prefs = getSharedPreferences("CareerNexusPrefs", Context.MODE_PRIVATE)
+            val isLoggedIn = prefs.getBoolean("isLoggedIn", false)
+
+            val intent = if (isLoggedIn) {
+                Intent(this, Dashboard::class.java)
+            } else {
+                Intent(this, LoginActivity::class.java)
+            }
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
-        },3000)
+        }, 3000)
     }
 }
