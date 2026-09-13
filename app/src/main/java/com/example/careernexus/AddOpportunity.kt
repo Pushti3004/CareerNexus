@@ -30,7 +30,7 @@ class AddOpportunity : AppCompatActivity() {
         val btnSave = findViewById<Button>(R.id.btnSave)
 
         // Fill dropdown with the 3 opportunity types
-        val types = arrayOf("Internship", "Hackathon", "Workshop","Seminar")
+        val types = arrayOf("Internship", "Hackathon", "Workshop", "Seminar")
         spinnerType.adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_dropdown_item,
@@ -81,7 +81,6 @@ class AddOpportunity : AppCompatActivity() {
 
             // Save it into the shared in-memory repository
             OpportunityRepository.addOpportunity(opportunity)
-
             Toast.makeText(this, "Opportunity saved!", Toast.LENGTH_SHORT).show()
 
             // Close this screen and return to Dashboard

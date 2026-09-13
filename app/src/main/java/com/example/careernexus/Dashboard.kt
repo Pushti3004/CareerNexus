@@ -49,7 +49,8 @@ class Dashboard : AppCompatActivity() {
 
         // 1. Create adapter with an empty list initially
         adapter = OpportunityAdapter(emptyList()) { opportunity ->
-            // handle card click later (e.g. open detail screen)
+            val intent = Intent(this, AddOpportunity::class.java)
+            startActivity(intent)
         }
 
         // 2. Attach LayoutManager + Adapter to RecyclerView

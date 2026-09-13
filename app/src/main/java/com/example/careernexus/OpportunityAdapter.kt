@@ -1,5 +1,6 @@
 package com.example.careernexus
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +33,7 @@ class OpportunityAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
         val item = items[position]
 
         holder.tvType.text = item.type
@@ -52,6 +54,7 @@ class OpportunityAdapter(
 
         holder.itemView.setOnClickListener { onItemClick(item) }
     }
+
 
     override fun getItemCount() = items.size
 
