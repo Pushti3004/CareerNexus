@@ -35,7 +35,6 @@ class OpportunityAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val item = items[position]
-
         holder.tvType.text = item.type
         holder.tvTitle.text = item.title
 

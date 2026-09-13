@@ -50,13 +50,25 @@
 
         <TextView
             android:id="@+id/tvDeadline"
-            android:layout_width="match_parent"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:textSize="14sp"
             android:text="Deadline: 15 Sep 2026"
             app:layout_constraintTop_toBottomOf="@id/tvTitle"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageButton
+            android:id="@+id/menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/dropdowndots"
+            android:contentDescription="Menu"
+            android:src="@drawable/dropdowndots"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvDeadline"
+            app:layout_constraintTop_toBottomOf="@id/tvCountdown" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
