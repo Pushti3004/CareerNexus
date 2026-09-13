@@ -41,6 +41,7 @@ class LoginActivity : AppCompatActivity() {
                     val prefs = getSharedPreferences("CareerNexusPrefs", Context.MODE_PRIVATE)
                     prefs.edit()
                         .putBoolean("isLoggedIn", true)
+                        .apply()
 
                     val intent = Intent(this, Dashboard::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
