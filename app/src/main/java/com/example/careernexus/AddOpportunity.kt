@@ -69,13 +69,17 @@ class AddOpportunity : AppCompatActivity() {
                 Toast.makeText(this, "Please pick a deadline date", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            if (link.isEmpty()) {
+                Toast.makeText(this, "Please enter a link", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             // Create the Opportunity object
             val opportunity = Opportunity(
                 title = title,
                 type = type,
                 deadline = selectedDateMillis,
-                link = link.ifEmpty { null },
+                link = link,
                 notes = notes.ifEmpty { null }
             )
 

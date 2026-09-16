@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.PopupMenu
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -40,6 +41,7 @@ class Dashboard : AppCompatActivity() {
                         logoutUser()
                         true
                     }
+
                     else -> false
                 }
             }
@@ -48,35 +50,51 @@ class Dashboard : AppCompatActivity() {
         rvOpportunities = findViewById(R.id.rvOpportunities)
         val btnPlus = findViewById<FloatingActionButton>(R.id.btn_plus)
 
-        // 1. Create adapter with an empty list initially
-        adapter = OpportunityAdapter(emptyList()) { opportunity ->
-            val intent = Intent(this, AddOpportunity::class.java)
+
+        adapter = OpportunityAdapter(
+            emptyList(),
+            onItemClick = { opportunity ->
+                val intent = Intent(this, AddOpportunity::class.java)
+                startActivity(intent)
+            },
+            onMenuClick = { opportunity, anchorView ->
+                val popup = PopupMenu(this, anchorView)
+                popup.menuInflater.inflate(R.menu.opportunity_menu, popup.menu)
+                popup.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.menu_edit -> {
+                            val intent = Intent(this, AddOpportunity::class.java)
+                            startActivity(intent)
+                            true
+                        }
+
+                        R.id.menu_delete -> {
+                            AlertDialog.Builder(this).setTitle("Delete Opportunity")
+                                .setMessage("Are you sure you want to delete this opportunity?")
+                                .setPositiveButton("Delete") { _, _ ->
+                                    OpportunityRepository.deleteOpportunity(opportunity.id)
+                                    adapter.updateList(OpportunityRepository.getAll())
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
+                            true
+                        }
+
+                        else -> false
+                    }
+                }
+                popup.show()
+            }
+        )
+
+        private fun logoutUser() {
+            val prefs = getSharedPreferences("CareerNexusPrefs", Context.MODE_PRIVATE)
+            prefs.edit().clear().apply()
+
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
+            finish()
         }
-
-        // 2. Attach LayoutManager + Adapter to RecyclerView
-        rvOpportunities.layoutManager = LinearLayoutManager(this)
-        rvOpportunities.adapter = adapter
-
-        btnPlus.setOnClickListener {
-            startActivity(Intent(this, AddOpportunity::class.java))
-        }
-    }
-
-    // 3. Refresh data every time Dashboard becomes visible again
-    override fun onResume() {
-        super.onResume()
-        val list = OpportunityRepository.getAll()
-        adapter.updateList(list)
-    }
-
-    private fun logoutUser() {
-        val prefs = getSharedPreferences("CareerNexusPrefs", Context.MODE_PRIVATE)
-        prefs.edit().clear().apply()
-
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
     }
 }

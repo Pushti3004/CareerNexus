@@ -4,6 +4,7 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
@@ -13,7 +14,8 @@ import java.util.concurrent.TimeUnit
 
 class OpportunityAdapter(
     private var items: List<Opportunity>,
-    private val onItemClick: (Opportunity) -> Unit
+    private val onItemClick: (Opportunity) -> Unit,
+    private val onMenuClick: (Opportunity, View) -> Unit
 ) : RecyclerView.Adapter<OpportunityAdapter.ViewHolder>() {
 
     private var fullList: List<Opportunity> = items
@@ -23,6 +25,7 @@ class OpportunityAdapter(
         val tvTitle: TextView = view.findViewById(R.id.tvTitle)
         val tvDeadline: TextView = view.findViewById(R.id.tvDeadline)
         val tvCountdown: TextView = view.findViewById(R.id.tvCountdown)
+        val btnCardMenu: ImageView = view.findViewById(R.id.menu)
     }
 
     // This line is what "fetches" single_item.xml as each card's layout
@@ -52,6 +55,7 @@ class OpportunityAdapter(
         }
 
         holder.itemView.setOnClickListener { onItemClick(item) }
+        holder.btnCardMenu.setOnClickListener { onMenuClick(item, holder.btnCardMenu) }
     }
 
 
