@@ -12,65 +12,85 @@ import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-class OpportunityAdapter(
-    private var items: List<Opportunity>,
-    private val onItemClick: (Opportunity) -> Unit,
-    private val onMenuClick: (Opportunity, View) -> Unit
-) : RecyclerView.Adapter<OpportunityAdapter.ViewHolder>() {
-
-    private var fullList: List<Opportunity> = items
-
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvType: TextView = view.findViewById(R.id.tvType)
-        val tvTitle: TextView = view.findViewById(R.id.tvTitle)
-        val tvDeadline: TextView = view.findViewById(R.id.tvDeadline)
-        val tvCountdown: TextView = view.findViewById(R.id.tvCountdown)
-        val btnCardMenu: ImageView = view.findViewById(R.id.menu)
-    }
-
-    // This line is what "fetches" single_item.xml as each card's layout
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.single_item, parent, false)
-        return ViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
-        val item = items[position]
-        holder.tvType.text = item.type
-        holder.tvTitle.text = item.title
-
-        val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-        holder.tvDeadline.text = "Deadline: ${sdf.format(Date(item.deadline))}"
-
-        val diff = item.deadline - System.currentTimeMillis()
-        val daysLeft = TimeUnit.MILLISECONDS.toDays(diff)
-
-        holder.tvCountdown.text = when {
-            diff < 0 -> "Overdue"
-            daysLeft == 0L -> "Today!"
-            daysLeft == 1L -> "1 day left"
-            else -> "$daysLeft days left"
+class OpportunityAdapter(){
+    class OpportunityAdapter(
+        private val opportunities: MutableList<Opportunity>) : RecyclerView.Adapter<OpportunityAdapter.OpportunityViewHolder>() {
+        class OpportunityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val tvType: TextView = itemView.findViewById(R.id.tvType)
+            val tvCountdown: TextView = itemView.findViewById(R.id.tvCountdown)
+            val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
+            val tvDeadline: TextView = itemView.findViewById(R.id.tvDeadline)
         }
-        holder.itemView.setOnClickListener { onItemClick(item) }
-        holder.btnCardMenu.setOnClickListener { onMenuClick(item, holder.btnCardMenu) }
-    }
 
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+        ): OpportunityViewHolder {
 
-    override fun getItemCount() = items.size
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.single_item, parent, false)
 
-    fun updateList(newItems: List<Opportunity>) {
-        items = newItems
-        fullList = newItems
-        notifyDataSetChanged()
-    }
-
-    fun filter(query: String) {
-        items = if (query.isEmpty()) fullList else fullList.filter {
-            it.title.contains(query, ignoreCase = true) ||
-                    it.type.contains(query, ignoreCase = true)
+            return OpportunityViewHolder(view)
         }
-        notifyDataSetChanged()
+
+        override fun onBindViewHolder(
+            holder: OpportunityViewHolder,
+            position: Int
+        ) {
+            val opportunity = opportunities[position]
+            holder.tvType.text = opportunity.type
+            holder.tvTitle.text = opportunity.title
+
+            val formatter = SimpleDateFormat(
+                "dd MMM yyyy, hh:mm a",
+                Locale.getDefault()
+            )
+
+            holder.tvDeadline.text =
+                "Deadline: ${formatter.format(Date(opportunity.deadlineMillis))}"
+
+            holder.tvCountdown.text =
+                getRemainingTime(opportunity.deadlineMillis)
+        }
+
+        override fun getItemCount(): Int {
+            return opportunities.size
+        }
+        private fun getRemainingTime(deadlineMillis: Long): String {
+
+            var difference = deadlineMillis - System.currentTimeMillis()
+
+            if (difference <= 0) {
+                return "Expired"
+            }
+
+            val days = TimeUnit.MILLISECONDS.toDays(difference)
+            difference -= TimeUnit.DAYS.toMillis(days)
+
+            val hours = TimeUnit.MILLISECONDS.toHours(difference)
+            difference -= TimeUnit.HOURS.toMillis(hours)
+
+            val minutes = TimeUnit.MILLISECONDS.toMinutes(difference)
+
+            return when {
+                days > 0 ->
+                    "$days days left"
+
+                hours > 0 ->
+                    "$hours hours left"
+
+                minutes > 0 ->
+                    "$minutes minutes left"
+
+                else ->
+                    "Less than a minute"
+            }
+        }
+        fun updateData(newList: List<Opportunity>) {
+            opportunities.clear()
+            opportunities.addAll(newList)
+            notifyDataSetChanged()
+        }
     }
+
 }

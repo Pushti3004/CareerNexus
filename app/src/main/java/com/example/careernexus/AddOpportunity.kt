@@ -1,6 +1,7 @@
 package com.example.careernexus
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.widget.ArrayAdapter
@@ -13,81 +14,131 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-
 class AddOpportunity : AppCompatActivity() {
 
-    private var selectedDateMillis: Long = 0L
+    private lateinit var etTitle: EditText
+    private lateinit var spinnerType: Spinner
+    private lateinit var btnPickDate: Button
+    private lateinit var tvSelectedDate: TextView
+    private lateinit var tvSourceLabel: EditText
+    private lateinit var etLink: EditText
+    private lateinit var etNotes: EditText
+    private lateinit var btnSave: Button
+    private var selectedDate = ""
+
+    private lateinit var databaseHelper: DatabaseHelper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_add_opportunity)
-        val etTitle = findViewById<EditText>(R.id.etTitle)
-        val spinnerType = findViewById<Spinner>(R.id.spinnerType)
-        val btnPickDate = findViewById<Button>(R.id.btnPickDate)
-        val tvSelectedDate = findViewById<TextView>(R.id.tvSelectedDate)
-        val etLink = findViewById<EditText>(R.id.etLink)
-        val etNotes = findViewById<EditText>(R.id.etNotes)
-        val btnSave = findViewById<Button>(R.id.btnSave)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+        etTitle = findViewById(R.id.etTitle)
+        spinnerType = findViewById(R.id.spinnerType)
+        btnPickDate = findViewById(R.id.btnPickDate)
+        tvSelectedDate = findViewById(R.id.tvSelectedDate)
+        tvSourceLabel = findViewById(R.id.tvSourceLabel)
+        etLink = findViewById(R.id.etLink)
+        etNotes = findViewById(R.id.etNotes)
+        btnSave = findViewById(R.id.btnSave)
 
-        // Fill dropdown with the 3 opportunity types
-        val types = arrayOf("Internship", "Hackathon", "Workshop", "Seminar")
-        spinnerType.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            types
+        setupSpinner()
+        setupDatePicker()
+        setupSaveButton()
+
+        databaseHelper = DatabaseHelper(this)
+    }
+    private fun setupSpinner() {
+
+        val opportunityTypes = arrayOf(
+            "Internship",
+            "Scholarship",
+            "Competition",
+            "Workshop",
+            "Seminar",
+            "Job",
+            "Other"
         )
 
-        // Show date picker when button is tapped
-        btnPickDate.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            DatePickerDialog(
-                this,
-                { _, year, month, day ->
-                    calendar.set(year, month, day, 23, 59) // deadline defaults to end of day
-                    selectedDateMillis = calendar.timeInMillis
-                    tvSelectedDate.text = "Deadline: $day/${month + 1}/$year"
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
-        }
+        val adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            opportunityTypes
+        )
 
-        // Save button click
+        adapter.setDropDownViewResource(
+            android.R.layout.simple_spinner_dropdown_item
+        )
+
+        spinnerType.adapter = adapter
+    }
+
+    private fun setupDatePicker() {
+
+        btnPickDate.setOnClickListener {
+
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+            val datePickerDialog = DatePickerDialog(
+                this,
+                { _, selectedYear, selectedMonth, selectedDay ->
+                    val actualMonth = selectedMonth + 1
+                    selectedDate =
+                        "$selectedDay/$actualMonth/$selectedYear"
+                    tvSelectedDate.text = selectedDate
+                },
+                year,
+                month,
+                day
+            )
+            datePickerDialog.show()
+        }
+    }
+    private fun setupSaveButton() {
+
         btnSave.setOnClickListener {
+
             val title = etTitle.text.toString().trim()
             val type = spinnerType.selectedItem.toString()
+            val source = tvSourceLabel.text.toString().trim()
             val link = etLink.text.toString().trim()
             val notes = etNotes.text.toString().trim()
 
-            // Basic validation
             if (title.isEmpty()) {
-                Toast.makeText(this, "Please enter a title", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if (selectedDateMillis == 0L) {
-                Toast.makeText(this, "Please pick a deadline date", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if (link.isEmpty()) {
-                Toast.makeText(this, "Please enter a link", Toast.LENGTH_SHORT).show()
+                etTitle.error = "Please enter opportunity title"
+                etTitle.requestFocus()
                 return@setOnClickListener
             }
 
-            // Create the Opportunity object
-            val opportunity = Opportunity(
-                title = title,
-                type = type,
-                deadline = selectedDateMillis,
-                link = link,
-                notes = notes.ifEmpty { null }
-            )
+            if (selectedDate.isEmpty()) {
+                Toast.makeText(
+                    this, "Please select a deadline date",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
 
-            // Save it into the shared in-memory repository
-            OpportunityRepository.addOpportunity(opportunity)
-            Toast.makeText(this, "Opportunity saved!", Toast.LENGTH_SHORT).show()
+            if (link.isEmpty()){
+                Toast.makeText(
+                    this, "Please enter link",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
 
-            // Close this screen and return to Dashboard
+            Toast.makeText(
+                this,
+                "Opportunity Saved!",
+                Toast.LENGTH_SHORT
+            ).show()
+            val intent = Intent(this, Dashboard::class.java)
+            startActivity(intent)
             finish()
         }
     }
