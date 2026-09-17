@@ -16,7 +16,7 @@ class DatabaseHelper(context: Context) :
     companion object {
 
         private const val DATABASE_NAME = "CareerNexus.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2
         private const val TABLE_OPPORTUNITIES = "opportunities"
         private const val COL_ID = "id"
         private const val COL_TITLE = "title"
@@ -66,7 +66,6 @@ class DatabaseHelper(context: Context) :
     ): Long {
         val db = writableDatabase
         val values = ContentValues()
-
         values.put(COL_TITLE, title)
         values.put(COL_TYPE, type)
         values.put(COL_DEADLINE, deadlineMillis)
@@ -83,8 +82,7 @@ class DatabaseHelper(context: Context) :
 
     fun getAllOpportunities(): MutableList<Opportunity> {
 
-        val opportunities =
-            mutableListOf<Opportunity>()
+        val opportunities = mutableListOf<Opportunity>()
 
         val db = readableDatabase
         val cursor = db.query(
@@ -94,7 +92,7 @@ class DatabaseHelper(context: Context) :
             null,
             null,
             null,
-            "$COL_DEADLINE ASC"
+            "$COL_ID DESC"
         )
 
         cursor.use {

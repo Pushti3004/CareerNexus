@@ -11,22 +11,28 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class Dashboard : AppCompatActivity() {
 
+    private lateinit var recyclerOpportunities: RecyclerView
 
+    private lateinit var databaseHelper: DatabaseHelper
+
+    private lateinit var adapter: OpportunityAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_dashboard)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+
+        databaseHelper = DatabaseHelper(this)
+        recyclerOpportunities = findViewById(R.id.rvOpportunities)
+        recyclerOpportunities.layoutManager = LinearLayoutManager(this)
+        loadOpportunities()
+
         val btnPlus = findViewById<FloatingActionButton>(R.id.btn_plus)
         btnPlus.setOnClickListener {
             startActivity(Intent(this, AddOpportunity::class.java))
@@ -48,6 +54,19 @@ class Dashboard : AppCompatActivity() {
             popup.show()
         }
     }
+    override fun onResume() {
+        super.onResume()
+        if (::databaseHelper.isInitialized) {
+            loadOpportunities()
+        }
+    }
+    private fun loadOpportunities() {
+
+        val opportunityList = databaseHelper.getAllOpportunities()
+        adapter = OpportunityAdapter(opportunityList)
+        recyclerOpportunities.adapter = adapter
+    }
+
     private fun logoutUser() {
         val prefs = getSharedPreferences("CareerNexusPrefs", Context.MODE_PRIVATE)
         prefs.edit().clear().apply()

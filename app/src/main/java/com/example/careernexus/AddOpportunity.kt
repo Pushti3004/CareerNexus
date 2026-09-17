@@ -25,6 +25,7 @@ class AddOpportunity : AppCompatActivity() {
     private lateinit var etNotes: EditText
     private lateinit var btnSave: Button
     private var selectedDate = ""
+    private var deadlineMillis: Long = 0L
 
     private lateinit var databaseHelper: DatabaseHelper
 
@@ -46,16 +47,17 @@ class AddOpportunity : AppCompatActivity() {
         etNotes = findViewById(R.id.etNotes)
         btnSave = findViewById(R.id.btnSave)
 
+        databaseHelper = DatabaseHelper(this)
+
         setupSpinner()
         setupDatePicker()
         setupSaveButton()
-
-        databaseHelper = DatabaseHelper(this)
     }
     private fun setupSpinner() {
 
         val opportunityTypes = arrayOf(
             "Internship",
+            "Hackathon",
             "Scholarship",
             "Competition",
             "Workshop",
@@ -73,7 +75,6 @@ class AddOpportunity : AppCompatActivity() {
         adapter.setDropDownViewResource(
             android.R.layout.simple_spinner_dropdown_item
         )
-
         spinnerType.adapter = adapter
     }
 
@@ -89,8 +90,16 @@ class AddOpportunity : AppCompatActivity() {
                 this,
                 { _, selectedYear, selectedMonth, selectedDay ->
                     val actualMonth = selectedMonth + 1
-                    selectedDate =
-                        "$selectedDay/$actualMonth/$selectedYear"
+                    calendar.set(
+                        selectedYear,
+                        selectedMonth,
+                        selectedDay,
+                        23,
+                        59,
+                        59
+                    )
+                    deadlineMillis = calendar.timeInMillis
+                    selectedDate = "$selectedDay/$actualMonth/$selectedYear"
                     tvSelectedDate.text = selectedDate
                 },
                 year,
@@ -132,14 +141,43 @@ class AddOpportunity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            Toast.makeText(
-                this,
-                "Opportunity Saved!",
-                Toast.LENGTH_SHORT
-            ).show()
-            val intent = Intent(this, Dashboard::class.java)
-            startActivity(intent)
-            finish()
+            val result = databaseHelper.insertOpportunity(
+
+                title = title,
+
+                type = type,
+
+                deadlineMillis = deadlineMillis,
+
+                source = source,
+
+                link = link,
+
+                notes = notes
+            )
+            if (result != -1L) {
+
+                Toast.makeText(
+                    this,
+                    "Opportunity Saved!",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                val intent =
+                    Intent(this, Dashboard::class.java)
+
+                startActivity(intent)
+
+                finish()
+
+            } else {
+
+                Toast.makeText(
+                    this,
+                    "Failed to save opportunity",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 }
