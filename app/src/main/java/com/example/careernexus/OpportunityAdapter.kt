@@ -53,7 +53,6 @@ class OpportunityAdapter(
             daysLeft == 1L -> "1 day left"
             else -> "$daysLeft days left"
         }
-
         holder.itemView.setOnClickListener { onItemClick(item) }
         holder.btnCardMenu.setOnClickListener { onMenuClick(item, holder.btnCardMenu) }
     }
