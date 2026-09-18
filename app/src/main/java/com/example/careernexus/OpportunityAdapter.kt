@@ -110,9 +110,4 @@ class OpportunityAdapter(
                 "Less than a minute"
         }
     }
-    fun updateData(newList: List<Opportunity>) {
-        opportunities.clear()
-        opportunities.addAll(newList)
-        notifyDataSetChanged()
-    }
 }

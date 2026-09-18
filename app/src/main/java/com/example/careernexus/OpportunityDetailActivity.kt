@@ -117,9 +117,8 @@ class OpportunityDetailActivity : AppCompatActivity() {
     }
     private fun setupEditButton() {
         btnEdit.setOnClickListener {
-            val currentOpportunity = opportunity ?: return@setOnClickListener
             val intent = Intent( this, AddOpportunity::class.java )
-            intent.putExtra( "EDIT_OPPORTUNITY_ID", currentOpportunity.id )
+            intent.putExtra( "EDIT_OPPORTUNITY_ID", opportunityId)
             startActivity(intent)
         }
     }

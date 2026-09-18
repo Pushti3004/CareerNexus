@@ -174,37 +174,47 @@ class AddOpportunity : AppCompatActivity() {
                 ).show()
                 return@setOnClickListener
             }
+            if (editOpportunityId == -1) {
+                val result = databaseHelper.insertOpportunity(
+                    title = title,
+                    type = type,
+                    deadlineMillis = deadlineMillis,
+                    source = source,
+                    link = link,
+                    notes = notes
+                )
+                if (result != -1L) {
 
-            val result = databaseHelper.insertOpportunity(
-                title = title,
-                type = type,
-                deadlineMillis = deadlineMillis,
-                source = source,
-                link = link,
-                notes = notes
-            )
-            if (result != -1L) {
+                    Toast.makeText(
+                        this,
+                        "Opportunity Saved!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    finish()
 
-                Toast.makeText(
-                    this,
-                    "Opportunity Saved!",
-                    Toast.LENGTH_SHORT
-                ).show()
+                } else {
 
-                val intent =
-                    Intent(this, Dashboard::class.java)
-
-                startActivity(intent)
-
-                finish()
-
+                    Toast.makeText(
+                        this,
+                        "Failed to save opportunity",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             } else {
-
-                Toast.makeText(
-                    this,
-                    "Failed to save opportunity",
-                    Toast.LENGTH_SHORT
-                ).show()
+                val result = databaseHelper.updateOpportunity(
+                    id = editOpportunityId,
+                    title = title,
+                    type = type,
+                    deadlineMillis = deadlineMillis,
+                    source = source,
+                    link = link,
+                    notes = notes
+                )
+                if (result > 0) {
+                    Toast.makeText( this, "Opportunity Updated!", Toast.LENGTH_SHORT ).show()
+                    finish()
+                } else {
+                    Toast.makeText( this, "Failed to update opportunity", Toast.LENGTH_SHORT ).show() }
             }
         }
     }

@@ -63,10 +63,16 @@ class Dashboard : AppCompatActivity() {
     private fun loadOpportunities() {
 
         val opportunityList = databaseHelper.getAllOpportunities()
-        adapter = OpportunityAdapter(opportunityList)
-        recyclerOpportunities.adapter = adapter
-    }
+        if (!::adapter.isInitialized) {
 
+            adapter = OpportunityAdapter(opportunityList)
+            recyclerOpportunities.adapter = adapter
+
+        } else {
+
+            adapter.update(opportunityList)
+        }
+    }
     private fun logoutUser() {
         val prefs = getSharedPreferences("CareerNexusPrefs", Context.MODE_PRIVATE)
         prefs.edit().clear().apply()
