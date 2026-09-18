@@ -28,7 +28,6 @@ class OpportunityAdapter(
 
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.single_item, parent, false)
-
         return OpportunityViewHolder(view)
     }
 
@@ -50,6 +49,13 @@ class OpportunityAdapter(
 
         holder.tvCountdown.text =
             getRemainingTime(opportunity.deadlineMillis)
+
+        holder.itemView.setOnClickListener {
+            val intent = Intent( holder.itemView.context,
+                OpportunityDetailActivity::class.java )
+            intent.putExtra( "OPPORTUNITY_ID", opportunity.id )
+            holder.itemView.context.startActivity(intent)
+        }
     }
 
     override fun getItemCount(): Int {
