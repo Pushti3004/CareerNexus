@@ -94,11 +94,13 @@ class OpportunityDetailActivity : AppCompatActivity() {
     private fun getRemainingTime(deadlineMillis: Long ): String {
         var difference = deadlineMillis - System.currentTimeMillis()
         if (difference <= 0) { return "Expired" }
-        val days = TimeUnit.MILLISECONDS.toDays(difference)
-        difference -= TimeUnit.DAYS.toMillis(days)
-        val hours = TimeUnit.MILLISECONDS.toHours(difference)
-        difference -= TimeUnit.HOURS.toMillis(hours)
-        val minutes = TimeUnit.MILLISECONDS.toMinutes(difference)
+        val days = java.util.concurrent.TimeUnit.MILLISECONDS.toDays(difference)
+        difference -= java.util.concurrent.TimeUnit.DAYS.toMillis(days)
+
+        val hours = java.util.concurrent.TimeUnit.MILLISECONDS.toHours(difference)
+        difference -= java.util.concurrent.TimeUnit.HOURS.toMillis(hours)
+
+        val minutes = java.util.concurrent.TimeUnit.MILLISECONDS.toMinutes(difference)
         return when {
             days > 0 -> "$days days left"
             hours > 0 -> "$hours hours left"
@@ -144,7 +146,13 @@ class OpportunityDetailActivity : AppCompatActivity() {
     }
     private fun setupCompletedButton() {
         btnMarkCompleted.setOnClickListener {
-            Toast.makeText( this, "Opportunity marked as completed", Toast.LENGTH_SHORT ).show()
+            val result = databaseHelper.markOpportunityCompleted(opportunityId)
+            if (result > 0) {
+                Toast.makeText(this,"Opportunity marked as completed",Toast.LENGTH_SHORT).show()
+                finish()
+            } else {
+                Toast.makeText(this,"Failed to update opportunity",Toast.LENGTH_SHORT).show()
+            }
         }
     }
     private fun setupLinkClick() {

@@ -1,6 +1,7 @@
 package com.example.careernexus
 
 import android.content.Intent
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,9 +47,27 @@ class OpportunityAdapter(
 
         holder.tvDeadline.text =
             "Deadline: ${formatter.format(Date(opportunity.deadlineMillis))}"
+        val isExpired = opportunity.deadlineMillis <= System.currentTimeMillis()
+        holder.tvCountdown.text =
+            if (isExpired) {
+            "Expired"
+        } else {
+            getRemainingTime( opportunity.deadlineMillis )
+        }
 
         holder.tvCountdown.text =
             getRemainingTime(opportunity.deadlineMillis)
+        if (opportunity.completed || isExpired) {
+            holder.tvType.paintFlags = holder.tvType.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            holder.tvTitle.paintFlags = holder.tvTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            holder.tvDeadline.paintFlags = holder.tvDeadline.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            holder.tvCountdown.paintFlags = holder.tvCountdown.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            holder.tvCountdown.text = if (opportunity.completed) { "Completed" } else { "Expired" }
+        } else {
+            holder.tvType.paintFlags = holder.tvType.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            holder.tvTitle.paintFlags = holder.tvTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            holder.tvDeadline.paintFlags = holder.tvDeadline.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            holder.tvCountdown.paintFlags = holder.tvCountdown.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() }
 
         holder.itemView.setOnClickListener {
             val intent = Intent( holder.itemView.context,

@@ -26,8 +26,20 @@ class AddOpportunity : AppCompatActivity() {
     private lateinit var btnSave: Button
     private var selectedDate = ""
     private var deadlineMillis: Long = 0L
+    private var editOpportunityId: Int = -1
 
     private lateinit var databaseHelper: DatabaseHelper
+    val opportunityTypes = arrayOf(
+        "Other",
+        "Examination",
+        "Internship",
+        "Hackathon",
+        "Scholarship",
+        "Competition",
+        "Workshop",
+        "Seminar",
+        "Job"
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,33 +63,55 @@ class AddOpportunity : AppCompatActivity() {
 
         setupSpinner()
         setupDatePicker()
+        editOpportunityId = intent.getIntExtra( "EDIT_OPPORTUNITY_ID", -1 )
+        if (editOpportunityId != -1) {
+            loadOpportunityForEdit()
+            btnSave.text = "Update Opportunity"
+        } else {
+            btnSave.text = "Save Opportunity"
+        }
         setupSaveButton()
     }
+    private fun loadOpportunityForEdit() {
+        val opportunity = databaseHelper
+            .getAllOpportunities()
+            .find {
+                it.id == editOpportunityId
+            }
+        if (opportunity == null) {
+            Toast.makeText( this, "Opportunity not found", Toast.LENGTH_SHORT ).show()
+            finish()
+            return
+        }
+        etTitle.setText( opportunity.title )
+        val typePosition = opportunityTypes.indexOf( opportunity.type )
+        if (typePosition >= 0) {
+            spinnerType.setSelection( typePosition )
+        }
+        deadlineMillis = opportunity.deadlineMillis
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = deadlineMillis
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val month = calendar.get(Calendar.MONTH) + 1
+        val year = calendar.get(Calendar.YEAR)
+        selectedDate = "$day/$month/$year"
+        tvSelectedDate.text = selectedDate
+        tvSourceLabel.setText( opportunity.source )
+        etLink.setText( opportunity.link )
+        etNotes.setText( opportunity.notes )
+    }
     private fun setupSpinner() {
-
-        val opportunityTypes = arrayOf(
-            "Internship",
-            "Hackathon",
-            "Scholarship",
-            "Competition",
-            "Workshop",
-            "Seminar",
-            "Job",
-            "Other"
-        )
 
         val adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
             opportunityTypes
         )
-
         adapter.setDropDownViewResource(
             android.R.layout.simple_spinner_dropdown_item
         )
         spinnerType.adapter = adapter
     }
-
     private fun setupDatePicker() {
 
         btnPickDate.setOnClickListener {
@@ -142,17 +176,11 @@ class AddOpportunity : AppCompatActivity() {
             }
 
             val result = databaseHelper.insertOpportunity(
-
                 title = title,
-
                 type = type,
-
                 deadlineMillis = deadlineMillis,
-
                 source = source,
-
                 link = link,
-
                 notes = notes
             )
             if (result != -1L) {

@@ -7,5 +7,6 @@ data class Opportunity(
     val deadlineMillis: Long,
     val source: String,
     val link: String,
-    val notes: String
+    val notes: String,
+    val completed: Boolean
 )

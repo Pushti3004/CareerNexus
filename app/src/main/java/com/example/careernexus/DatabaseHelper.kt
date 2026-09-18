@@ -16,7 +16,7 @@ class DatabaseHelper(context: Context) :
     companion object {
 
         private const val DATABASE_NAME = "CareerNexus.db"
-        private const val DATABASE_VERSION = 2
+        private const val DATABASE_VERSION = 3
         private const val TABLE_OPPORTUNITIES = "opportunities"
         private const val COL_ID = "id"
         private const val COL_TITLE = "title"
@@ -25,6 +25,7 @@ class DatabaseHelper(context: Context) :
         private const val COL_SOURCE = "source"
         private const val COL_LINK = "link"
         private const val COL_NOTES = "notes"
+        private const val COL_COMPLETED = "completed"
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -37,7 +38,8 @@ class DatabaseHelper(context: Context) :
                 $COL_DEADLINE INTEGER NOT NULL,
                 $COL_SOURCE TEXT,
                 $COL_LINK TEXT,
-                $COL_NOTES TEXT
+                $COL_NOTES TEXT,
+                $COL_COMPLETED INTEGER DEFAULT 0
             )
         """.trimIndent()
 
@@ -72,6 +74,7 @@ class DatabaseHelper(context: Context) :
         values.put(COL_SOURCE, source)
         values.put(COL_LINK, link)
         values.put(COL_NOTES, notes)
+        values.put(COL_COMPLETED, 0)
 
         return db.insert(
             TABLE_OPPORTUNITIES,
@@ -127,18 +130,53 @@ class DatabaseHelper(context: Context) :
 
                     notes = it.getString(
                         it.getColumnIndexOrThrow(COL_NOTES)
-                    ) ?: ""
+                    ) ?: "",
+
+                    completed = it.getInt( it.getColumnIndexOrThrow(COL_COMPLETED)
+                    ) == 1
                 )
                 opportunities.add(opportunity)
             }
         }
         return opportunities
     }
-
-    fun deleteOpportunity(id: Int): Int {
-
+    fun updateOpportunity(
+        id: Int,
+        title: String,
+        type: String,
+        deadlineMillis: Long,
+        source: String,
+        link: String,
+        notes: String
+    ): Int {
         val db = writableDatabase
-
+        val values = ContentValues()
+        values.put(COL_TITLE, title)
+        values.put(COL_TYPE, type)
+        values.put(COL_DEADLINE, deadlineMillis)
+        values.put(COL_SOURCE, source)
+        values.put(COL_LINK, link)
+        values.put(COL_NOTES, notes)
+        return db.update(
+            TABLE_OPPORTUNITIES,
+            values,
+            "$COL_ID = ?",
+            arrayOf(id.toString())
+        )
+    }
+    fun markOpportunityCompleted(id: Int): Int {
+        val db = writableDatabase
+        val values = ContentValues()
+        values.put(COL_COMPLETED, 1)
+        return db.update(
+            TABLE_OPPORTUNITIES,
+            values,
+            "$COL_ID = ?",
+            arrayOf(id.toString())
+        )
+    }
+    fun deleteOpportunity(id: Int): Int {
+        val db = writableDatabase
         return db.delete(
             TABLE_OPPORTUNITIES,
             "$COL_ID = ?",
