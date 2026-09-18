@@ -63,12 +63,9 @@ class Dashboard : AppCompatActivity() {
         }
     }
     private fun loadOpportunities() {
-
         val opportunityList = databaseHelper.getAllOpportunities()
-
         adapter = OpportunityAdapter(opportunityList)
         recyclerOpportunities.adapter = adapter
-
         val activeCount = databaseHelper.getActiveOpportunityCount()
         tvOpportunityCount.text = activeCount.toString()
     }
