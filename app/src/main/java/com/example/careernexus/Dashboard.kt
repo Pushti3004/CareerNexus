@@ -30,8 +30,8 @@ class Dashboard : AppCompatActivity() {
         setContentView(R.layout.activity_dashboard)
 
         databaseHelper = DatabaseHelper(this)
-        recyclerOpportunities = findViewById(R.id.rvOpportunities)
         tvOpportunityCount = findViewById(R.id.tvOpportunityCount)
+        recyclerOpportunities = findViewById(R.id.rvOpportunities)
         recyclerOpportunities.layoutManager = LinearLayoutManager(this)
         loadOpportunities()
 
