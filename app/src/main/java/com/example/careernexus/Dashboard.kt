@@ -22,6 +22,7 @@ class Dashboard : AppCompatActivity() {
     private lateinit var databaseHelper: DatabaseHelper
 
     private lateinit var adapter: OpportunityAdapter
+    private lateinit var tvOpportunityCount: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +31,7 @@ class Dashboard : AppCompatActivity() {
 
         databaseHelper = DatabaseHelper(this)
         recyclerOpportunities = findViewById(R.id.rvOpportunities)
+        tvOpportunityCount = findViewById(R.id.tvOpportunityCount)
         recyclerOpportunities.layoutManager = LinearLayoutManager(this)
         loadOpportunities()
 
@@ -66,6 +68,9 @@ class Dashboard : AppCompatActivity() {
 
         adapter = OpportunityAdapter(opportunityList)
         recyclerOpportunities.adapter = adapter
+
+        val activeCount = databaseHelper.getActiveOpportunityCount()
+        tvOpportunityCount.text = activeCount.toString()
     }
     private fun logoutUser() {
         val prefs = getSharedPreferences("CareerNexusPrefs", Context.MODE_PRIVATE)

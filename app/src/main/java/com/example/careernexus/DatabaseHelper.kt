@@ -140,6 +140,32 @@ class DatabaseHelper(context: Context) :
         }
         return opportunities
     }
+    fun getActiveOpportunityCount(): Int {
+
+        val db = readableDatabase
+
+        val currentTime = System.currentTimeMillis()
+
+        val cursor = db.rawQuery(
+            """
+        SELECT COUNT(*) 
+        FROM $TABLE_OPPORTUNITIES
+        WHERE $COL_DEADLINE > ?
+        AND $COL_COMPLETED = 0
+        """.trimIndent(),
+            arrayOf(currentTime.toString())
+        )
+
+        var count = 0
+
+        cursor.use {
+            if (it.moveToFirst()) {
+                count = it.getInt(0)
+            }
+        }
+
+        return count
+    }
     fun updateOpportunity(
         id: Int,
         title: String,
